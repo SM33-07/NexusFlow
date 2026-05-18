@@ -59,7 +59,7 @@ export default function NexusCanvas({ onOpenNodeEditor }: { onOpenNodeEditor?: (
         </div>
       </div>
 
-      <div className="absolute bottom-4 left-4 z-10 hidden max-w-sm rounded-lg border border-slate-200 bg-white/90 p-3 shadow-lg backdrop-blur dark:border-slate-700 dark:bg-slate-900/80 md:block">
+      <div className="absolute bottom-4 right-4 z-10 hidden max-w-sm rounded-lg border border-slate-200 bg-white/90 p-3 shadow-lg backdrop-blur dark:border-slate-700 dark:bg-slate-900/80 md:block">
         <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500">
           <Radar size={14} className="text-emerald-500 animate-pulse" />
           Interactive surface
