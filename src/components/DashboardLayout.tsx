@@ -11,9 +11,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/me').then((response) => response.ok ? response.json() : null).then((data) => setProfile(data?.profile ?? null));
+    fetch('/api/me')
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => setProfile(data?.profile ?? null))
+      .finally(() => setProfileLoading(false));
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const denied = params.get('accessDenied');
+    if (!denied) return;
+
+    alert(denied === 'admin'
+      ? 'Access denied. Admin / HR is only available to admin users.'
+      : 'Access denied. Manager Hub is only available to managers and admins.'
+    );
+    params.delete('accessDenied');
+    const cleanUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}${window.location.hash}`;
+    window.history.replaceState({}, '', cleanUrl);
   }, []);
 
   const handleLogout = async () => {
@@ -37,8 +55,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           <nav className="flex flex-col gap-2 px-2 lg:px-4">
             <NavItem icon={<Activity />} label="Goal Canvas" href="/" active={pathname === '/'} />
-            <NavItem icon={<ShieldAlert />} label="Manager Hub" href="/manager" active={pathname === '/manager'} />
-            <NavItem icon={<Settings />} label="Admin / HR" href="/admin" active={pathname === '/admin'} />
+            <NavItem icon={<ShieldAlert />} label="Manager Hub" href="/manager" active={pathname === '/manager'} allowedRoles={['manager', 'admin']} profile={profile} />
+            <NavItem icon={<Settings />} label="Admin / HR" href="/admin" active={pathname === '/admin'} allowedRoles={['admin']} profile={profile} />
           </nav>
         </div>
 
@@ -49,8 +67,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <Link href="/profile" className="w-full p-3 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/50 flex flex-col items-center lg:flex-row gap-3 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer text-left">
             <UserCircle className="text-slate-500 dark:text-slate-400 min-w-[32px]" size={32} />
             <div className="hidden lg:block overflow-hidden">
-              <p className="text-sm font-semibold text-slate-900 dark:text-slate-200 truncate">{profile?.full_name ?? 'Alex Mercer'}</p>
-              <p className="text-xs text-emerald-600 dark:text-emerald-400 font-mono">{profile?.role ?? 'employee'} · {profile?.job_title ?? 'Frontend Eng'}</p>
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-200 truncate">
+                {profile?.full_name ?? (profileLoading ? 'Loading profile' : 'Not signed in')}
+              </p>
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 font-mono">
+                {profile ? `${profile.role} · ${profile.job_title}` : profileLoading ? 'checking session' : 'login required'}
+              </p>
             </div>
           </Link>
           
@@ -77,9 +99,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   );
 }
 
-function NavItem({ icon, label, href, active = false }: { icon: React.ReactNode, label: string, href: string, active?: boolean }) {
+function NavItem({
+  icon,
+  label,
+  href,
+  active = false,
+  allowedRoles,
+  profile,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  href: string;
+  active?: boolean;
+  allowedRoles?: Profile['role'][];
+  profile?: Profile | null;
+}) {
+  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!allowedRoles || !profile || allowedRoles.includes(profile.role)) return;
+    event.preventDefault();
+    alert(`Access denied. ${label} is not available for your current role.`);
+  };
+
   return (
-    <Link href={href} className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-200 ${active ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-emerald-500/30 shadow-sm dark:shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]' : 'text-slate-600 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-300'}`}>
+    <Link href={href} onClick={handleClick} className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-200 ${active ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-emerald-500/30 shadow-sm dark:shadow-[inset_0_0_20px_rgba(16,185,129,0.1)]' : 'text-slate-600 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-300'}`}>
       {icon}
       <span className="hidden lg:block font-medium tracking-wide">{label}</span>
     </Link>

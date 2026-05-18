@@ -21,13 +21,9 @@ export function middleware(request: NextRequest) {
   }
 
   if (!allowedRoles.includes(role)) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('next', pathname);
-    const response = NextResponse.redirect(loginUrl);
-    for (const name of ['nexus-session', 'nexus-access-token', 'nexus-refresh-token', 'nexus-user-id', 'nexus-role', 'nexus-demo-role']) {
-      response.cookies.set(name, '', { path: '/', maxAge: 0 });
-    }
-    return response;
+    const homeUrl = new URL('/', request.url);
+    homeUrl.searchParams.set('accessDenied', pathname.startsWith('/admin') ? 'admin' : 'manager');
+    return NextResponse.redirect(homeUrl);
   }
 
   return NextResponse.next();

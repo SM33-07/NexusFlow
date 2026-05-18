@@ -6,9 +6,13 @@ import type { Profile } from '@/lib/types';
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/me').then((response) => response.ok ? response.json() : null).then((data) => setProfile(data?.profile ?? null));
+    fetch('/api/me')
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => setProfile(data?.profile ?? null))
+      .finally(() => setProfileLoading(false));
   }, []);
 
   return (
@@ -23,14 +27,18 @@ export default function ProfilePage() {
           
           <div className="flex-1 space-y-4">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{profile?.full_name ?? 'Alex Mercer'}</h2>
-              <p className="text-emerald-600 dark:text-emerald-400 font-mono">{profile?.role ?? 'employee'} · {profile?.job_title ?? 'Frontend Engineer'}</p>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                {profile?.full_name ?? (profileLoading ? 'Loading profile' : 'Not signed in')}
+              </h2>
+              <p className="text-emerald-600 dark:text-emerald-400 font-mono">
+                {profile ? `${profile.role} · ${profile.job_title}` : profileLoading ? 'checking session' : 'login required'}
+              </p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-200 dark:border-slate-800">
-              <ProfileStat icon={<Mail />} label="Email" value={profile?.email ?? 'employee@nexus.demo'} />
-              <ProfileStat icon={<Briefcase />} label="Department" value={profile?.department ?? 'Product Engineering'} />
-              <ProfileStat icon={<Shield />} label="Clearance" value={profile?.role ?? 'employee'} />
+              <ProfileStat icon={<Mail />} label="Email" value={profile?.email ?? 'Pending'} />
+              <ProfileStat icon={<Briefcase />} label="Department" value={profile?.department ?? 'Pending'} />
+              <ProfileStat icon={<Shield />} label="Clearance" value={profile?.role ?? 'Pending'} />
             </div>
           </div>
         </div>
