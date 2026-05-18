@@ -1,5 +1,5 @@
--- Nexus demo-ready Supabase schema.
--- Run this in Supabase SQL Editor, then create the 3 Auth users listed in README.
+-- Nexus deploy-ready Supabase schema.
+-- Run this once in the Supabase SQL Editor, then run supabase/seed.sql.
 
 create extension if not exists "pgcrypto";
 
@@ -14,15 +14,22 @@ exception when duplicate_object then null; end $$;
 alter type public.goal_status add value if not exists 'not_started';
 
 create table if not exists public.profiles (
-  id uuid primary key references auth.users(id) on delete cascade,
+  id uuid primary key default gen_random_uuid(),
   full_name text not null,
   email text unique not null,
+  password_hash text not null,
+  session_version int not null default 1,
   role public.user_role not null default 'employee',
   job_title text not null default 'Employee',
   department text not null default 'Business',
-  manager_id uuid references public.profiles(id),
-  created_at timestamptz not null default now()
+  manager_id uuid references public.profiles(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
+
+alter table public.profiles add column if not exists password_hash text;
+alter table public.profiles add column if not exists session_version int not null default 1;
+alter table public.profiles add column if not exists updated_at timestamptz not null default now();
 
 create table if not exists public.goals (
   id uuid primary key default gen_random_uuid(),
@@ -119,6 +126,34 @@ create table if not exists public.escalation_logs (
   created_at timestamptz not null default now()
 );
 
+create or replace function public.set_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists set_profiles_updated_at on public.profiles;
+create trigger set_profiles_updated_at
+before update on public.profiles
+for each row execute function public.set_updated_at();
+
+drop trigger if exists set_goals_updated_at on public.goals;
+create trigger set_goals_updated_at
+before update on public.goals
+for each row execute function public.set_updated_at();
+
+create index if not exists profiles_email_idx on public.profiles (lower(email));
+create index if not exists profiles_manager_id_idx on public.profiles (manager_id);
+create index if not exists goals_owner_id_idx on public.goals (owner_id);
+create index if not exists goals_parent_goal_id_idx on public.goals (parent_goal_id);
+create index if not exists quarterly_updates_goal_id_idx on public.quarterly_updates (goal_id);
+create index if not exists check_ins_employee_id_idx on public.check_ins (employee_id);
+create index if not exists escalation_logs_status_idx on public.escalation_logs (status);
+
 alter table public.profiles enable row level security;
 alter table public.goals enable row level security;
 alter table public.quarterly_updates enable row level security;
@@ -128,24 +163,23 @@ alter table public.notification_logs enable row level security;
 alter table public.escalation_rules enable row level security;
 alter table public.escalation_logs enable row level security;
 
-create policy "profiles self or manager" on public.profiles for select using (
-  auth.uid() = id or auth.uid() = manager_id or exists (select 1 from public.profiles p where p.id = auth.uid() and p.role in ('manager', 'admin'))
-);
-create policy "goals owner or manager" on public.goals for select using (
-  auth.uid() = owner_id or exists (select 1 from public.profiles p where p.id = owner_id and p.manager_id = auth.uid()) or exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin')
-);
-create policy "updates owner or manager" on public.quarterly_updates for select using (
-  exists (select 1 from public.goals g where g.id = goal_id and (g.owner_id = auth.uid() or exists (select 1 from public.profiles p where p.id = g.owner_id and p.manager_id = auth.uid())))
-);
-create policy "checkins participant" on public.check_ins for select using (auth.uid() = employee_id or auth.uid() = manager_id);
-create policy "admin notification logs" on public.notification_logs for select using (
-  exists (select 1 from public.profiles p where p.id = auth.uid() and p.role in ('manager', 'admin'))
-);
-create policy "admin escalation rules" on public.escalation_rules for select using (
-  exists (select 1 from public.profiles p where p.id = auth.uid() and p.role in ('manager', 'admin'))
-);
-create policy "admin escalation logs" on public.escalation_logs for select using (
-  exists (select 1 from public.profiles p where p.id = auth.uid() and p.role in ('manager', 'admin'))
-);
+drop policy if exists "profiles no direct client access" on public.profiles;
+drop policy if exists "goals no direct client access" on public.goals;
+drop policy if exists "updates no direct client access" on public.quarterly_updates;
+drop policy if exists "checkins no direct client access" on public.check_ins;
+drop policy if exists "audit no direct client access" on public.audit_logs;
+drop policy if exists "notifications no direct client access" on public.notification_logs;
+drop policy if exists "rules no direct client access" on public.escalation_rules;
+drop policy if exists "escalations no direct client access" on public.escalation_logs;
 
--- Server route handlers use SUPABASE_SERVICE_ROLE_KEY for inserts/updates during the hackathon demo.
+create policy "profiles no direct client access" on public.profiles for all using (false) with check (false);
+create policy "goals no direct client access" on public.goals for all using (false) with check (false);
+create policy "updates no direct client access" on public.quarterly_updates for all using (false) with check (false);
+create policy "checkins no direct client access" on public.check_ins for all using (false) with check (false);
+create policy "audit no direct client access" on public.audit_logs for all using (false) with check (false);
+create policy "notifications no direct client access" on public.notification_logs for all using (false) with check (false);
+create policy "rules no direct client access" on public.escalation_rules for all using (false) with check (false);
+create policy "escalations no direct client access" on public.escalation_logs for all using (false) with check (false);
+
+-- The Next.js backend uses SUPABASE_SERVICE_ROLE_KEY server-side.
+-- Do not expose SUPABASE_SERVICE_ROLE_KEY to the browser.

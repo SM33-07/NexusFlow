@@ -45,7 +45,8 @@ export async function signInWithPassword(email: string, password: string) {
   if (!profile || !verifyPassword(password, profile.password_hash)) {
     throw new Error('Invalid email or password.');
   }
-  const { password_hash: _passwordHash, ...publicProfile } = profile;
+  const publicProfile = { ...profile };
+  delete publicProfile.password_hash;
   return publicProfile;
 }
 

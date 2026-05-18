@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentProfile, hasSupabaseEnv, supabaseRest } from '@/lib/supabaseServer';
+import { getCurrentProfile, getProfileById, hasSupabaseEnv, supabaseRest } from '@/lib/supabaseServer';
 import type { CheckIn } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
@@ -18,6 +18,11 @@ export async function POST(request: NextRequest) {
         created_at: new Date().toISOString(),
       },
     });
+  }
+
+  const employee = await getProfileById(body.employee_id);
+  if (!employee || (profile.role === 'manager' && employee.manager_id !== profile.id)) {
+    return NextResponse.json({ error: 'Employee is not in your reporting scope.' }, { status: 403 });
   }
 
   const rows = await supabaseRest<CheckIn[]>('check_ins', {

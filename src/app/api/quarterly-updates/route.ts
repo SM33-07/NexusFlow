@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { demoGoals } from '@/lib/demoData';
 import { computeQuarterScore } from '@/lib/scoring';
-import { getCurrentProfile, hasSupabaseEnv, supabaseRest } from '@/lib/supabaseServer';
+import { getCurrentProfile, getProfileById, hasSupabaseEnv, supabaseRest } from '@/lib/supabaseServer';
 import type { GoalRecord, QuarterlyUpdate } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
@@ -25,6 +25,9 @@ export async function POST(request: NextRequest) {
 
   const [goal] = await supabaseRest<GoalRecord[]>(`goals?id=eq.${body.goal_id}&select=*`);
   if (!goal) return NextResponse.json({ error: 'Goal not found.' }, { status: 404 });
+  const owner = await getProfileById(goal.owner_id);
+  const canUpdate = goal.owner_id === profile.id || profile.role === 'admin' || (profile.role === 'manager' && owner?.manager_id === profile.id);
+  if (!canUpdate) return NextResponse.json({ error: 'You do not have permission to update this goal.' }, { status: 403 });
 
   const computedScore = computeQuarterScore({
     uomType: goal.uom_type,

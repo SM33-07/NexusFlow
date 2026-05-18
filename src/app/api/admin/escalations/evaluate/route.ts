@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
   const [rules, goals, profiles] = await Promise.all([
     supabaseRest<EscalationRule[]>('escalation_rules?active=eq.true&select=*'),
     supabaseRest<GoalRecord[]>('goals?select=*'),
-    supabaseRest<Profile[]>('profiles?select=*'),
+    supabaseRest<Profile[]>('profiles?select=id,full_name,email,role,job_title,department,manager_id,session_version'),
   ]);
 
   const approvalRule = rules.find((rule) => rule.trigger_type === 'manager_approval_overdue');

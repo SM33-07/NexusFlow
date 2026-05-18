@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { demoGoals, demoQuarterlyUpdates } from '@/lib/demoData';
-import { getCurrentProfile, hasSupabaseEnv, supabaseRest } from '@/lib/supabaseServer';
+import { getCurrentProfile, getProfileById, hasSupabaseEnv, supabaseRest } from '@/lib/supabaseServer';
 import type { GoalRecord, QuarterlyUpdate } from '@/lib/types';
 
 function attachLatestUpdates(goals: GoalRecord[], updates: QuarterlyUpdate[]) {
@@ -107,6 +107,16 @@ export async function PATCH(request: NextRequest) {
   if (!hasSupabaseEnv) return NextResponse.json({ goal: body });
 
   const [before] = await supabaseRest<GoalRecord[]>(`goals?id=eq.${body.id}&select=*`);
+  if (!before) return NextResponse.json({ error: 'Goal not found.' }, { status: 404 });
+
+  const owner = await getProfileById(before.owner_id);
+  const ownsGoal = before.owner_id === profile.id;
+  const managesGoal = profile.role === 'manager' && owner?.manager_id === profile.id;
+  const canAdminister = profile.role === 'admin' || managesGoal;
+  const isApprovalAction = body.status === 'approved' || body.status === 'returned' || body.locked === false;
+  if (!canAdminister && (!ownsGoal || before.locked || isApprovalAction)) {
+    return NextResponse.json({ error: 'You do not have permission to update this goal.' }, { status: 403 });
+  }
 
   const patch = {
     ...(body.status ? { status: body.status, locked: body.status === 'approved' } : {}),
@@ -166,6 +176,15 @@ export async function DELETE(request: NextRequest) {
   const id = new URL(request.url).searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'Goal id is required.' }, { status: 400 });
   if (!hasSupabaseEnv) return NextResponse.json({ ok: true });
+
+  const [goal] = await supabaseRest<GoalRecord[]>(`goals?id=eq.${id}&select=*`);
+  if (!goal) return NextResponse.json({ error: 'Goal not found.' }, { status: 404 });
+  if (goal.owner_id !== profile.id && profile.role !== 'admin') {
+    return NextResponse.json({ error: 'You do not have permission to delete this goal.' }, { status: 403 });
+  }
+  if (goal.locked && profile.role !== 'admin') {
+    return NextResponse.json({ error: 'Locked goals cannot be deleted.' }, { status: 409 });
+  }
 
   await supabaseRest(`goals?id=eq.${id}`, { method: 'DELETE' });
   return NextResponse.json({ ok: true });

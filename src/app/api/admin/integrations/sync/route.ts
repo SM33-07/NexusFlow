@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   if (!profile || profile.role !== 'admin') return NextResponse.json({ error: 'Admin access required.' }, { status: 403 });
 
   const profiles = hasSupabaseEnv
-    ? await supabaseRest<Profile[]>('profiles?select=*')
+    ? await supabaseRest<Profile[]>('profiles?select=id,full_name,email,role,job_title,department,manager_id,session_version')
     : demoProfiles;
 
   const mappedUsers = profiles.map((item) => ({

@@ -1,6 +1,6 @@
 # Nexus Goal Canvas
 
-Demo-ready Atomberg-style goal planning app with Supabase Auth, persisted canvas goals, approval workflow, quarterly scoring, CSV export, manager check-ins, bonus integrations, escalations, and analytics.
+Demo-ready Atomberg-style goal planning app with database-backed auth, persisted canvas goals, approval workflow, quarterly scoring, CSV export, manager check-ins, bonus integrations, escalations, and analytics.
 
 ## Hackathon Deliverables
 
@@ -25,25 +25,21 @@ If Supabase env vars are not configured, the app still runs with demo fallback d
 
 1. Create a Supabase project.
 2. In SQL Editor, run `supabase/schema.sql`.
-3. Go to Authentication -> Users and create these users with password `Nexus@12345`:
-   - `employee@nexus.demo`
-   - `manager@nexus.demo`
-   - `admin@nexus.demo`
-4. Copy each auth user UUID.
-5. In `supabase/seed.sql`, replace:
-   - `EMPLOYEE_AUTH_UUID`
-   - `MANAGER_AUTH_UUID`
-   - `ADMIN_AUTH_UUID`
-6. Run the edited `supabase/seed.sql` in SQL Editor.
-7. Add env vars from `.env.example` to `.env.local` and to Vercel:
+3. Run `supabase/seed.sql` in SQL Editor.
+4. Add env vars from `.env.example` to `.env.local` and to Vercel:
    - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
+   - `SESSION_SECRET`
    - optional `OPENAI_API_KEY`
+
+Demo users are seeded automatically:
+ - `employee@nexus.demo` / `Nexus@12345`
+ - `manager@nexus.demo` / `Nexus@12345`
+ - `admin@nexus.demo` / `Nexus@12345`
 
 ## Auth And Routing
 
-Login lives at `/login`. The app uses Supabase email/password Auth through `/api/auth/login`, stores secure route cookies, and loads the signed-in profile through `/api/me`.
+Login lives at `/login`. The app verifies PBKDF2 password hashes from the `profiles` table through `/api/auth/login`, stores a signed HTTP-only session cookie, and loads the signed-in profile through `/api/me`. Supabase is used as the database through server-only REST calls with `SUPABASE_SERVICE_ROLE_KEY`; the service role key is never sent to the browser.
 
 Protected routing is handled in `middleware.ts`:
  - `/manager` allows `manager` and `admin`
@@ -83,7 +79,8 @@ Protected routing is handled in `middleware.ts`:
 2. Import into Vercel.
 3. Add the env vars above.
 4. Deploy.
-5. In Supabase Authentication settings, add your Vercel URL to allowed redirect/site URLs if you later switch to Supabase-hosted auth redirects. This implementation uses direct password login, so no OAuth callback route is required.
+5. Set the Vercel project root to `Nexus` if importing the outer repository folder.
+6. No Supabase Auth redirect configuration is required because this build uses direct database-backed login and signed route cookies.
 
 ## Optional Bonus Integration Env Vars
 

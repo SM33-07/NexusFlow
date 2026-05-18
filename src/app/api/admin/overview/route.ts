@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
   }
 
   const [profiles, goals, checkIns, updates, auditLogs, notificationLogs, escalationRules, escalationLogs] = await Promise.all([
-    supabaseRest<Profile[]>('profiles?select=*'),
+    supabaseRest<Profile[]>('profiles?select=id,full_name,email,role,job_title,department,manager_id,session_version'),
     supabaseRest<GoalRecord[]>('goals?select=*&order=created_at.desc'),
     supabaseRest<CheckIn[]>('check_ins?select=*&order=created_at.desc'),
     supabaseRest<QuarterlyUpdate[]>('quarterly_updates?select=*&order=created_at.desc'),

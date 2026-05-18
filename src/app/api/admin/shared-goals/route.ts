@@ -21,8 +21,8 @@ export async function POST(request: NextRequest) {
   }
 
   const recipients = profile.role === 'admin'
-    ? await supabaseRest<Profile[]>("profiles?role=eq.employee&select=*")
-    : await supabaseRest<Profile[]>(`profiles?manager_id=eq.${profile.id}&select=*`);
+    ? await supabaseRest<Profile[]>("profiles?role=eq.employee&select=id,full_name,email,role,job_title,department,manager_id,session_version")
+    : await supabaseRest<Profile[]>(`profiles?manager_id=eq.${profile.id}&select=id,full_name,email,role,job_title,department,manager_id,session_version`);
 
   const rows = recipients.map((employee, index) => ({
     owner_id: employee.id,

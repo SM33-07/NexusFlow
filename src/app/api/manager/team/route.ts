@@ -41,7 +41,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ members: [summarize(demoProfiles[0], attachLatest(demoGoals, demoQuarterlyUpdates), demoCheckIns)] });
   }
 
-  const directReports = await supabaseRest<Profile[]>(`profiles?manager_id=eq.${profile.id}&select=*`);
+  const directReports = await supabaseRest<Profile[]>(
+    `profiles?manager_id=eq.${profile.id}&select=id,full_name,email,role,job_title,department,manager_id,session_version`
+  );
   const ids = directReports.map((report) => report.id).join(',');
   if (!ids) return NextResponse.json({ members: [] });
 

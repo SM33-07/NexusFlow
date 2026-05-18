@@ -47,7 +47,7 @@ export default function LoginPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Nexus Login</h1>
-            <p className="text-sm text-slate-400">Email/password Supabase Auth</p>
+            <p className="text-sm text-slate-400">Email/password database auth</p>
           </div>
         </div>
 

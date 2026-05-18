@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
       profiles = [profile];
     } else {
       profiles = profile.role === 'admin'
-        ? await supabaseRest<Profile[]>('profiles?select=*')
-        : await supabaseRest<Profile[]>(`profiles?manager_id=eq.${profile.id}&select=*`);
+        ? await supabaseRest<Profile[]>('profiles?select=id,full_name,email,role,job_title,department,manager_id,session_version')
+        : await supabaseRest<Profile[]>(`profiles?manager_id=eq.${profile.id}&select=id,full_name,email,role,job_title,department,manager_id,session_version`);
       const ids = profiles.map((item) => item.id).join(',');
       goals = ids ? await supabaseRest<GoalRecord[]>(`goals?owner_id=in.(${ids})&select=*`) : [];
       const goalIds = goals.map((goal) => goal.id).join(',');
