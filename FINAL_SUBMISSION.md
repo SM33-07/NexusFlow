@@ -10,7 +10,7 @@ Paste your Vercel URL here after deployment:
 
 Paste your GitHub / GitLab / Bitbucket URL here after pushing:
 
-`https://github.com/SM33-07/NexusFlow
+`https://github.com/SM33-07/NexusFlow`
 
 ## 3. Architecture Diagram
 
