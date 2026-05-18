@@ -1,5 +1,3 @@
--- Nexus deploy-ready Supabase schema.
--- Run this once in the Supabase SQL Editor, then run supabase/seed.sql.
 
 create extension if not exists "pgcrypto";
 

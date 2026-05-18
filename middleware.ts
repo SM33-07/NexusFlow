@@ -21,7 +21,13 @@ export function middleware(request: NextRequest) {
   }
 
   if (!allowedRoles.includes(role)) {
-    return NextResponse.redirect(new URL('/', request.url));
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('next', pathname);
+    const response = NextResponse.redirect(loginUrl);
+    for (const name of ['nexus-session', 'nexus-access-token', 'nexus-refresh-token', 'nexus-user-id', 'nexus-role', 'nexus-demo-role']) {
+      response.cookies.set(name, '', { path: '/', maxAge: 0 });
+    }
+    return response;
   }
 
   return NextResponse.next();

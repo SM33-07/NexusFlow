@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
   <title id="title">Nexus Goal Setting and Tracking Portal Architecture</title>
-  <desc id="desc">Architecture diagram showing browser users, Next.js application, API route handlers, Supabase Auth, Supabase Postgres, OpenAI optional goal generation, and Vercel hosting.</desc>
+  <desc id="desc">Architecture diagram showing browser users, Next.js application, API route handlers, signed cookie auth, Supabase Postgres, OpenAI optional goal generation, and Vercel hosting.</desc>
   <rect width="1280" height="760" fill="#0f172a"/>
   <text x="70" y="72" fill="#f8fafc" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">Nexus Goal Setting and Tracking Portal</text>
   <text x="70" y="106" fill="#94a3b8" font-family="Inter, Arial, sans-serif" font-size="18">Hackathon demo architecture: low-cost Next.js + Supabase + optional OpenAI</text>
@@ -42,8 +42,8 @@
   <text class="tiny" x="485" y="478">Validation, audit logs, manager check-ins</text>
 
   <rect class="box" x="910" y="145" width="300" height="180"/>
-  <text class="label" x="950" y="190">Supabase Auth</text>
-  <text class="small" x="950" y="232">Email/password sessions</text>
+  <text class="label" x="950" y="190">Signed Cookie Auth</text>
+  <text class="small" x="950" y="232">PBKDF2 profile passwords</text>
   <text class="tiny" x="950" y="256">Employee, Manager, Admin profiles</text>
 
   <rect class="box" x="910" y="380" width="300" height="235"/>

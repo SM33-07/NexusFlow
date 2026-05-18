@@ -1,18 +1,16 @@
 'use client';
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { KeyRound, Loader2, Network } from 'lucide-react';
 
 const demos = [
-  { label: 'Employee', email: 'employee@nexus.demo', password: 'Nexus@12345' },
-  { label: 'Manager', email: 'manager@nexus.demo', password: 'Nexus@12345' },
-  { label: 'Admin', email: 'admin@nexus.demo', password: 'Nexus@12345' },
+  { label: 'Employee', email: 'employee@nexus.demo' },
+  { label: 'Manager', email: 'manager@nexus.demo' },
+  { label: 'Admin', email: 'admin@nexus.demo' },
 ];
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState(demos[0].email);
-  const [password, setPassword] = useState(demos[0].password);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -35,7 +33,7 @@ export default function LoginPage() {
     }
 
     const next = new URLSearchParams(window.location.search).get('next');
-    router.push(next ?? '/');
+    window.location.assign(next ?? '/');
   };
 
   return (
@@ -56,7 +54,7 @@ export default function LoginPage() {
             <button
               key={demo.email}
               type="button"
-              onClick={() => { setEmail(demo.email); setPassword(demo.password); }}
+              onClick={() => { setEmail(demo.email); setPassword(''); }}
               className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs font-bold text-slate-200 hover:border-emerald-500"
             >
               {demo.label}

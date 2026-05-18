@@ -1,10 +1,12 @@
 -- Nexus deploy-ready demo data.
--- Password for all three users: Nexus@12345
+-- employee@nexus.demo / NexusEmp@2026
+-- manager@nexus.demo / NexusMgr@2026
+-- admin@nexus.demo / NexusAdmin@2026
 
 insert into public.profiles (id, full_name, email, password_hash, session_version, role, job_title, department, manager_id) values
-  ('11111111-1111-1111-1111-111111111111', 'Alex Mercer', 'employee@nexus.demo', 'pbkdf2:100000:nexus-employee-salt:eb674f0afed91e6621803ad7487c5dbaacc05f6a4e03f8facd058e817195406a', 1, 'employee', 'Frontend Engineer', 'Product Engineering', '22222222-2222-2222-2222-222222222222'),
-  ('22222222-2222-2222-2222-222222222222', 'Sarah Connor', 'manager@nexus.demo', 'pbkdf2:100000:nexus-manager-salt:41164c455cbcfca46b557f878cd4671e2e3966ba7cbf9c39c4a824a452182f53', 1, 'manager', 'Engineering Manager', 'Product Engineering', '33333333-3333-3333-3333-333333333333'),
-  ('33333333-3333-3333-3333-333333333333', 'Priya Rao', 'admin@nexus.demo', 'pbkdf2:100000:nexus-admin-salt:80c13ec003962756650226b1bad853ca431eae8417b89445bd70b351f95eb76b', 1, 'admin', 'People Ops Admin', 'Business Excellence', null)
+  ('11111111-1111-1111-1111-111111111111', 'Alex Mercer', 'employee@nexus.demo', 'pbkdf2:100000:nexus-employee-salt-v2:f429d013e1eb9145d8e3ddf154219919a0b7252d960cb329c583821dfd8f1467', 1, 'employee', 'Frontend Engineer', 'Product Engineering', '22222222-2222-2222-2222-222222222222'),
+  ('22222222-2222-2222-2222-222222222222', 'Sarah Connor', 'manager@nexus.demo', 'pbkdf2:100000:nexus-manager-salt-v2:7a930ed5b3285cac8ac66ca115d40599026f75267a0d16c199eefba047d617b1', 1, 'manager', 'Engineering Manager', 'Product Engineering', '33333333-3333-3333-3333-333333333333'),
+  ('33333333-3333-3333-3333-333333333333', 'Priya Rao', 'admin@nexus.demo', 'pbkdf2:100000:nexus-admin-salt-v2:453303a699d1c7d608237d03d0e89cf3f8b698da1e458fb7f1e8db0393c206a9', 1, 'admin', 'People Ops Admin', 'Business Excellence', null)
 on conflict (id) do update set
   full_name = excluded.full_name,
   email = excluded.email,

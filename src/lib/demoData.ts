@@ -30,6 +30,12 @@ export const demoProfiles: Profile[] = [
   },
 ];
 
+export const demoCredentials = [
+  { label: 'Employee', email: 'employee@nexus.demo', password: 'NexusEmp@2026' },
+  { label: 'Manager', email: 'manager@nexus.demo', password: 'NexusMgr@2026' },
+  { label: 'Admin', email: 'admin@nexus.demo', password: 'NexusAdmin@2026' },
+];
+
 export const demoGoals: GoalRecord[] = [
   {
     id: 'hub-1',
