@@ -2,15 +2,15 @@
 
 ## 1. Live / Hosted Demo URL
 
-Replace this line with your Vercel deployment URL:
+Paste your Vercel URL here after deployment:
 
-`https://your-vercel-url.vercel.app`
+`https://nexus-flow-atomberg.vercel.app/`
 
 ## 2. Source Code Repository
 
-Replace this line with your source repository URL:
+Paste your GitHub / GitLab / Bitbucket URL here after pushing:
 
-`https://github.com/your-username/your-repo`
+`https://github.com/SM33-07/NexusFlow
 
 ## 3. Architecture Diagram
 
