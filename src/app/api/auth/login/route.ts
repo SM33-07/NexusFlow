@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
+import { createSessionToken, sessionCookieOptions } from '@/lib/auth';
 import { demoProfiles } from '@/lib/demoData';
-import { getProfileById, hasSupabaseEnv, signInWithPassword } from '@/lib/supabaseServer';
+import { hasSupabaseEnv, signInWithPassword } from '@/lib/supabaseServer';
 
 export async function POST(request: Request) {
   const { email, password } = await request.json();
@@ -14,13 +15,10 @@ export async function POST(request: Request) {
       return response;
     }
 
-    const session = await signInWithPassword(email, password);
-    const profile = await getProfileById(session.user.id);
-    if (!profile) return NextResponse.json({ error: 'Profile row missing for this auth user.' }, { status: 403 });
+    const profile = await signInWithPassword(email, password);
 
     const response = NextResponse.json({ profile });
-    response.cookies.set('nexus-access-token', session.access_token, { httpOnly: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 });
-    response.cookies.set('nexus-refresh-token', session.refresh_token, { httpOnly: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 7 });
+    response.cookies.set('nexus-session', createSessionToken(profile), sessionCookieOptions);
     response.cookies.set('nexus-user-id', profile.id, { httpOnly: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 7 });
     response.cookies.set('nexus-role', profile.role, { httpOnly: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 7 });
     return response;

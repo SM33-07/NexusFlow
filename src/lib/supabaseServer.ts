@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { verifyPassword, verifySessionToken } from './auth';
 import { demoProfiles } from './demoData';
 import type { Profile } from './types';
 
@@ -6,7 +7,7 @@ const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-export const hasSupabaseEnv = Boolean(url && anonKey && serviceKey);
+export const hasSupabaseEnv = Boolean(url && serviceKey);
 
 export function jsonHeaders(prefer?: string) {
   return {
@@ -15,6 +16,10 @@ export function jsonHeaders(prefer?: string) {
     'Content-Type': 'application/json',
     ...(prefer ? { Prefer: prefer } : {}),
   };
+}
+
+function encodeFilterValue(value: string) {
+  return encodeURIComponent(value).replace(/\./g, '%2E');
 }
 
 export async function supabaseRest<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -35,26 +40,19 @@ export async function supabaseRest<T>(path: string, init: RequestInit = {}): Pro
 }
 
 export async function signInWithPassword(email: string, password: string) {
-  if (!url || !anonKey) throw new Error('Supabase Auth env vars are missing.');
-  const response = await fetch(`${url}/auth/v1/token?grant_type=password`, {
-    method: 'POST',
-    headers: {
-      apikey: anonKey,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email, password }),
-  });
-
-  if (!response.ok) {
-    const message = await response.text();
-    throw new Error(message || 'Invalid login.');
+  const rows = await supabaseRest<Profile[]>(`profiles?email=eq.${encodeFilterValue(email.toLowerCase().trim())}&select=*`);
+  const profile = rows[0];
+  if (!profile || !verifyPassword(password, profile.password_hash)) {
+    throw new Error('Invalid email or password.');
   }
-
-  return response.json() as Promise<{ access_token: string; refresh_token: string; user: { id: string; email?: string } }>;
+  const { password_hash: _passwordHash, ...publicProfile } = profile;
+  return publicProfile;
 }
 
 export async function getProfileById(id: string) {
-  const rows = await supabaseRest<Profile[]>(`profiles?id=eq.${id}&select=*`);
+  const rows = await supabaseRest<Profile[]>(
+    `profiles?id=eq.${encodeFilterValue(id)}&select=id,full_name,email,role,job_title,department,manager_id,session_version`
+  );
   return rows[0] ?? null;
 }
 
@@ -64,7 +62,11 @@ export async function getCurrentProfile(request: NextRequest): Promise<Profile |
     return demoProfiles.find((profile) => profile.role === demoRole) ?? demoProfiles[0];
   }
 
-  const userId = request.cookies.get('nexus-user-id')?.value;
-  if (!userId || !hasSupabaseEnv) return null;
-  return getProfileById(userId);
+  if (!hasSupabaseEnv) return null;
+  const session = verifySessionToken(request.cookies.get('nexus-session')?.value);
+  if (!session) return null;
+
+  const profile = await getProfileById(session.userId);
+  if (!profile || profile.session_version !== session.sessionVersion) return null;
+  return profile;
 }

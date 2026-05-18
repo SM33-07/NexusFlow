@@ -16,6 +16,8 @@ export type Profile = {
   job_title: string;
   department: string;
   manager_id: string | null;
+  session_version?: number;
+  password_hash?: string;
 };
 
 export type GoalRecord = {
