@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
+  <title id="title">Nexus Goal Setting and Tracking Portal Architecture</title>
+  <desc id="desc">Architecture diagram showing browser users, Next.js application, API route handlers, Supabase Auth, Supabase Postgres, OpenAI optional goal generation, and Vercel hosting.</desc>
+  <rect width="1280" height="760" fill="#0f172a"/>
+  <text x="70" y="72" fill="#f8fafc" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">Nexus Goal Setting and Tracking Portal</text>
+  <text x="70" y="106" fill="#94a3b8" font-family="Inter, Arial, sans-serif" font-size="18">Hackathon demo architecture: low-cost Next.js + Supabase + optional OpenAI</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#34d399"/>
+    </marker>
+    <style>
+      .box { fill: #111827; stroke: #334155; stroke-width: 2; rx: 18; }
+      .box2 { fill: #052e2b; stroke: #10b981; stroke-width: 2; rx: 18; }
+      .label { fill: #f8fafc; font-family: Inter, Arial, sans-serif; font-size: 20px; font-weight: 700; }
+      .small { fill: #cbd5e1; font-family: Inter, Arial, sans-serif; font-size: 15px; }
+      .tiny { fill: #94a3b8; font-family: Inter, Arial, sans-serif; font-size: 13px; }
+      .arrow { stroke: #34d399; stroke-width: 3; marker-end: url(#arrow); fill: none; }
+    </style>
+  </defs>
+
+  <rect class="box" x="70" y="165" width="250" height="360"/>
+  <text class="label" x="105" y="210">Browser Users</text>
+  <text class="small" x="105" y="250">Employee</text>
+  <text class="tiny" x="105" y="274">Create goals, submit sheet, log actuals</text>
+  <text class="small" x="105" y="322">Manager (L1)</text>
+  <text class="tiny" x="105" y="346">Approve, return, edit targets, check-ins</text>
+  <text class="small" x="105" y="394">Admin / HR</text>
+  <text class="tiny" x="105" y="418">Cycles, completion, audit, unlocks</text>
+  <text class="small" x="105" y="466">Demo Access</text>
+  <text class="tiny" x="105" y="490">3 seeded credentials</text>
+
+  <rect class="box2" x="440" y="145" width="355" height="410"/>
+  <text class="label" x="485" y="190">Next.js App on Vercel</text>
+  <text class="small" x="485" y="232">App Router UI</text>
+  <text class="tiny" x="485" y="256">Canvas, Manager Hub, Admin Dashboard</text>
+  <text class="small" x="485" y="306">Middleware Role Guard</text>
+  <text class="tiny" x="485" y="330">/manager and /admin route protection</text>
+  <text class="small" x="485" y="380">Route Handlers</text>
+  <text class="tiny" x="485" y="404">Auth, goals, approvals, actuals, exports</text>
+  <text class="small" x="485" y="454">Server-side Governance</text>
+  <text class="tiny" x="485" y="478">Validation, audit logs, manager check-ins</text>
+
+  <rect class="box" x="910" y="145" width="300" height="180"/>
+  <text class="label" x="950" y="190">Supabase Auth</text>
+  <text class="small" x="950" y="232">Email/password sessions</text>
+  <text class="tiny" x="950" y="256">Employee, Manager, Admin profiles</text>
+
+  <rect class="box" x="910" y="380" width="300" height="235"/>
+  <text class="label" x="950" y="425">Supabase Postgres</text>
+  <text class="small" x="950" y="467">profiles, goals</text>
+  <text class="small" x="950" y="499">quarterly_updates</text>
+  <text class="small" x="950" y="531">check_ins, audit_logs</text>
+  <text class="tiny" x="950" y="568">RLS enabled; service-role API for demo writes</text>
+
+  <rect class="box" x="440" y="615" width="355" height="95"/>
+  <text class="label" x="485" y="655">Optional OpenAI API</text>
+  <text class="tiny" x="485" y="684">SMART KPI generation with template fallback</text>
+
+  <rect class="box" x="910" y="650" width="300" height="60"/>
+  <text class="small" x="950" y="675">Bonus Integrations</text>
+  <text class="tiny" x="950" y="699">Entra ID, Email, Teams, escalation logs</text>
+
+  <path class="arrow" d="M320 345 C365 345,395 345,440 345"/>
+  <path class="arrow" d="M795 235 C840 235,865 235,910 235"/>
+  <path class="arrow" d="M795 470 C840 470,865 470,910 470"/>
+  <path class="arrow" d="M618 555 L618 615"/>
+  <path class="arrow" d="M795 670 C840 670,865 670,910 680"/>
+
+  <text x="370" y="330" fill="#34d399" font-family="Inter, Arial, sans-serif" font-size="14">HTTPS</text>
+  <text x="825" y="220" fill="#34d399" font-family="Inter, Arial, sans-serif" font-size="14">login</text>
+  <text x="824" y="455" fill="#34d399" font-family="Inter, Arial, sans-serif" font-size="14">REST</text>
+  <text x="635" y="592" fill="#34d399" font-family="Inter, Arial, sans-serif" font-size="14">AI goal generation</text>
+
+  <rect x="70" y="650" width="250" height="60" fill="#020617" stroke="#334155" rx="14"/>
+  <text class="tiny" x="95" y="676">Cost optimized: Vercel free/low tier +</text>
+  <text class="tiny" x="95" y="698">Supabase hosted Postgres, no servers to manage</text>
+</svg>
