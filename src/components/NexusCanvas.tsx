@@ -4,6 +4,7 @@ import ReactFlow, { Background, Controls } from 'reactflow';
 import 'reactflow/dist/style.css';
 import GoalNode from './GoalNode';
 import { useCanvasStore } from '@/store/useCanvasStore';
+import { GitPullRequestArrow, MousePointerClick, Radar } from 'lucide-react';
 
 const nodeTypes = { goalNode: GoalNode };
 
@@ -16,6 +17,7 @@ export default function NexusCanvas({ onOpenNodeEditor }: { onOpenNodeEditor?: (
 
   return (
     <div className="w-full h-[75vh] min-h-[600px] bg-slate-50 dark:bg-[#0f172a] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 relative shadow-2xl">
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-px bg-gradient-to-r from-transparent via-emerald-400 to-transparent animate-scan" />
       
       {/* CSS Override for React Flow Controls to fix the white block bug */}
       <style>{`
@@ -54,6 +56,17 @@ export default function NexusCanvas({ onOpenNodeEditor }: { onOpenNodeEditor?: (
         <h2 className="text-slate-800 dark:text-slate-200 font-bold mb-1">Canvas Weightage</h2>
         <div className={`text-3xl font-mono ${totalWeightage === 100 ? 'text-emerald-600 dark:text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)] dark:drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]' : 'text-rose-500 dark:text-rose-400'}`}>
           {totalWeightage}%
+        </div>
+      </div>
+
+      <div className="absolute bottom-4 left-4 z-10 hidden max-w-sm rounded-lg border border-slate-200 bg-white/90 p-3 shadow-lg backdrop-blur dark:border-slate-700 dark:bg-slate-900/80 md:block">
+        <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500">
+          <Radar size={14} className="text-emerald-500 animate-pulse" />
+          Interactive surface
+        </div>
+        <div className="grid gap-2 text-xs text-slate-600 dark:text-slate-300">
+          <div className="flex items-center gap-2"><MousePointerClick size={14} /> Click canvas to create goals</div>
+          <div className="flex items-center gap-2"><GitPullRequestArrow size={14} /> Drag nodes to reframe priority</div>
         </div>
       </div>
 

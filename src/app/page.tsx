@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 import NexusCanvas from '@/components/NexusCanvas';
 import GoalSidePanel from '@/components/GoalSidePanel';
+import JudgeSpotlight from '@/components/JudgeSpotlight';
 import { Plus, ShieldCheck, Lock, CheckCircle2 } from 'lucide-react';
 import { useCanvasStore } from '@/store/useCanvasStore';
 
@@ -92,6 +93,8 @@ export default function GoalCanvasPage() {
           </button>
         </div>
       </div>
+
+      <JudgeSpotlight totalWeightage={totalWeightage} />
 
       <div className="relative z-0">
         <NexusCanvas onOpenNodeEditor={() => setIsPanelOpen(true)} />

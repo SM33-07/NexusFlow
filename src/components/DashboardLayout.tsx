@@ -6,12 +6,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import type { Profile } from '@/lib/types';
+import AccessDeniedToast from './AccessDeniedToast';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [accessDeniedMessage, setAccessDeniedMessage] = useState('');
 
   useEffect(() => {
     fetch('/api/me')
@@ -25,7 +27,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const denied = params.get('accessDenied');
     if (!denied) return;
 
-    alert(denied === 'admin'
+    setAccessDeniedMessage(denied === 'admin'
       ? 'Access denied. Admin / HR is only available to admin users.'
       : 'Access denied. Manager Hub is only available to managers and admins.'
     );
@@ -55,8 +57,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           <nav className="flex flex-col gap-2 px-2 lg:px-4">
             <NavItem icon={<Activity />} label="Goal Canvas" href="/" active={pathname === '/'} />
-            <NavItem icon={<ShieldAlert />} label="Manager Hub" href="/manager" active={pathname === '/manager'} allowedRoles={['manager', 'admin']} profile={profile} />
-            <NavItem icon={<Settings />} label="Admin / HR" href="/admin" active={pathname === '/admin'} allowedRoles={['admin']} profile={profile} />
+            <NavItem icon={<ShieldAlert />} label="Manager Hub" href="/manager" active={pathname === '/manager'} allowedRoles={['manager', 'admin']} profile={profile} onAccessDenied={setAccessDeniedMessage} />
+            <NavItem icon={<Settings />} label="Admin / HR" href="/admin" active={pathname === '/admin'} allowedRoles={['admin']} profile={profile} onAccessDenied={setAccessDeniedMessage} />
           </nav>
         </div>
 
@@ -95,6 +97,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {children}
         </div>
       </main>
+
+      <AccessDeniedToast message={accessDeniedMessage} onClose={() => setAccessDeniedMessage('')} />
     </div>
   );
 }
@@ -106,6 +110,7 @@ function NavItem({
   active = false,
   allowedRoles,
   profile,
+  onAccessDenied,
 }: {
   icon: React.ReactNode;
   label: string;
@@ -113,11 +118,12 @@ function NavItem({
   active?: boolean;
   allowedRoles?: Profile['role'][];
   profile?: Profile | null;
+  onAccessDenied?: (message: string) => void;
 }) {
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (!allowedRoles || !profile || allowedRoles.includes(profile.role)) return;
     event.preventDefault();
-    alert(`Access denied. ${label} is not available for your current role.`);
+    onAccessDenied?.(`${label} is not available for your current role.`);
   };
 
   return (

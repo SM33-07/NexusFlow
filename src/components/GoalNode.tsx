@@ -71,11 +71,15 @@ export default function GoalNode({ id, data }: { id: string; data: GoalNodeData 
 
   return (
     <div className={clsx(
-      "relative flex flex-col min-w-[240px] backdrop-blur-xl rounded-xl border p-5 transition-all duration-300 hover:shadow-2xl",
+      "group relative flex flex-col min-w-[240px] backdrop-blur-xl rounded-xl border p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl",
       currentStyle,
       data.locked && "border-emerald-500 ring-2 ring-emerald-400/40",
       scaleClass
     )}>
+      <div className={clsx(
+        "pointer-events-none absolute -inset-px rounded-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100",
+        isHub ? "bg-purple-400/10" : data.status === 'atRisk' ? "bg-rose-400/10" : "bg-emerald-400/10"
+      )} />
       {/* TARGET HANDLE (TOP) - FIXED HITBOX */}
       {!isHub && (
         <Handle 
@@ -166,7 +170,7 @@ export default function GoalNode({ id, data }: { id: string; data: GoalNodeData 
       {/* Bottom Progress Bar */}
       <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden mt-auto">
         <div 
-          className={clsx("h-full transition-all duration-1000", isHub ? "bg-purple-500" : data.status === 'atRisk' ? "bg-rose-500" : data.status === 'completed' ? "bg-emerald-500" : "bg-blue-500")} 
+          className={clsx("h-full transition-all duration-1000 bg-[length:200%_100%] animate-shimmer", isHub ? "bg-purple-500" : data.status === 'atRisk' ? "bg-rose-500" : data.status === 'completed' ? "bg-emerald-500" : "bg-blue-500")} 
           style={{ width: `${data.progress || 0}%` }}
         />
       </div>

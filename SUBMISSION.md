@@ -4,7 +4,7 @@
 
 Paste your Vercel URL here after deployment:
 
-`https://your-vercel-deployment-url.vercel.app`
+`https://nexus-flow-atomberg.vercel.app/`
 
 ## 2. Source Code Repository
 
